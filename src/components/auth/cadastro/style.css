@@ -1,0 +1,171 @@
+@charset "utf-8";
+
+:root {
+    --primary-color: #AB227D;
+    --secondary-color: #89398A;
+    --third-color: #FFA31C;
+    --background-color: #1B1F30;
+    --accent-color: #003D73;
+}
+
+.left {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background-color: var(--secondary-color);
+    height: 100%;
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-container {
+    height: 300px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo {
+    background-image: url("../../../../public/logo.png");
+    background-position: center;
+    background-size: cover;
+    width: 244px;
+    height: 104px;
+}
+
+.logo-container p {
+    color: #ADADAD;
+    text-align: center;
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    line-height: normal;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-container p {
+    font-size: 1.3em;
+    text-align: right;
+    color: #fff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+button, .submit-btn {
+    width: 350px;
+    margin: 10px auto;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #ADADAD;
+    outline: none;
+    font-weight: 700;
+    background-color: var(--third-color);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.5em;
+}
+
+button:hover, .submit-btn:hover {
+    background-color: #ffa41c8e;
+}
+
+input::placeholder {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.54);
+}
+
+input {
+    font-size: 20px;
+    transition: border-color 0.3s;
+}
+
+input:focus {
+    border-color: var(--third-color);
+}
+
+.cads-btn {
+    background-color: var(--background-color);
+    text-transform: uppercase;
+}
+
+.cads-btn:hover {
+    background-color: rgba(27, 31, 48, 0.73);
+}
+
+.email-container, .password-container, .nome-container, .curso-container {
+    display: flex;
+    position: relative;
+    padding: 15px;
+    flex-direction: column;
+}
+
+.email-container label, .password-container label, .nome-container label, .curso-container label {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #fff;
+    text-align: center;
+}
+
+.email-container input, .password-container input, .nome-container input, .curso-container select {
+    width: 100%;
+    padding: 10px 40px; 
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+.password-container i{
+    position: absolute;
+    top: 50%; 
+    transform: translateY(-50%);
+    font-size: 30px; 
+    color: var(--accent-color);
+}
+
+.email-container i, .nome-container i {
+    left: 25px; 
+}
+
+.password-container i:first-child, .curso-container i:first-child {
+    left: 25px; 
+}
+
+.password-container i:last-child, .curso-container i:last-child {
+    right: 30px;
+    font-size: 20px;
+    cursor: pointer; 
+}
+
+@media (width < 1250px) {
+    .left {
+        width: 100%;
+    }
+    .email-container input, .password-container input, .nome-container input, .curso-container select {
+        width: 50%;
+        margin: 0 auto;
+        padding: 10px 40px; 
+    }
+
+    .password-container i{
+        color: var(--accent-color);
+    
+    }
+}
+
+@media (width < 768px) {
+    .email-container input, .password-container input, .nome-container input, .curso-container select {
+        width: 100%;
+    }
+}
+
