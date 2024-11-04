@@ -22,7 +22,7 @@ const LoginForm = () => {
             </div>
             <div className="absolute right-0 top-0 bg-[#89398A] h-full w-full lg:w-1/3 flex flex-col">
                 <div className="h-[300px] flex flex-col items-center justify-center">
-                    <div className="bg-[url('../../../../public/logo.png')] bg-center bg-cover w-[244px] h-[104px]"></div>
+                    <div className="bg-[url('/logo.png')] bg-center bg-cover w-[244px] h-[104px]"></div>
                     <p className="text-gray-400 text-center text-lg font-normal">
                         A inteligência artificial que transforma sua experiência universitária.
                     </p>
