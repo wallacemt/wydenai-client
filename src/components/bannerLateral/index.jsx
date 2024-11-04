@@ -1,10 +1,11 @@
-import React from "react"
-import "./style.css"
+import React from "react";
 
 const BannerLateral = () => (
-    <div className="right">
-        <div className="ilustration-banner"></div>
+    <div className="w-[70vw] h-screen bg-[#AB227D]">
+        <div
+            className="bg-[url('../../../public/ilustration.png')] bg-no-repeat bg-center bg-cover h-[100%] w-[100%] "
+        ></div>
     </div>
-)
+);
 
 export default BannerLateral;
