@@ -1,13 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BannerLateral from "../../bannerLateral";
-
-const cursoOptions = [
-    { value: "ADS", label: "Análise e Desenvolvimento de Sistemas" },
-    { value: "ENGENHARIA", label: "Engenharia" },
-    { value: "ENGENHARIA DE SOFTWARE", label: "Engenharia de Software" },
-    { value: "SISTEMAS DE INFORMAÇÃO", label: "Sistemas de Informação" },
-];
+import { cursoOptions } from "./cursoOptions.js"; 
 
 const CadastroForm = () => {
     const [nome, setNome] = useState("");
