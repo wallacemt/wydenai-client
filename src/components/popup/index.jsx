@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import AOS from "aos";
+import Aos from "aos";
 import "aos/dist/aos.css";
 const Popup = ({ message, type, onClose, duration = 5000 }) => {
     const [timeLeft, setTimeLeft] = useState(duration / 1000);
@@ -20,7 +20,7 @@ const Popup = ({ message, type, onClose, duration = 5000 }) => {
     }, [duration, onClose]);
 
     useEffect(() => {
-        AOS.init({
+        Aos.init({
             duration: 2500,
             easing: "ease-in-out",
         });

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BannerLateral from "../../bannerLateral";
 import { cursoOptions } from "./cursoOptions.js"; 
-import AOS from 'aos';
+import Aos from 'aos';
 import 'aos/dist/aos.css';
 import Popup from "../../popup"; 
 
@@ -52,7 +52,7 @@ const CadastroForm = () => {
     };
 
     useEffect(() => {
-        AOS.init({
+        Aos.init({
             duration: 2000,
             easing: 'ease-in-out'
         });
