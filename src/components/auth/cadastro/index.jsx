@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import BannerLateral from "../../bannerLateral";
 import { cursoOptions } from "./cursoOptions.js"; 
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+import Popup from "../../popup"; 
 
 const CadastroForm = () => {
     const [nome, setNome] = useState("");
@@ -9,7 +12,9 @@ const CadastroForm = () => {
     const [curso, setCurso] = useState("");
     const [senha, setSenha] = useState("");
     const [repitaSenha, setRepitaSenha] = useState("");
-    const [erro, setErro] = useState(null);
+    const [popupVisible, setPopupVisible] = useState(false);
+    const [popupMessage, setPopupMessage] = useState("");
+    const [popupType, setPopupType] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
     const navigate = useNavigate();
@@ -17,15 +22,25 @@ const CadastroForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (senha !== repitaSenha) {
-            setErro("As senhas não coincidem");
+            setPopupMessage("As senhas não coincidem");
+            setPopupType("error");
         } else if (!email.includes("@")) {
-            setErro("Email inválido");
+            setPopupMessage("Email inválido");
+            setPopupType("error");
         } else if (!nome.trim()) {
-            setErro("Nome completo é obrigatório");
+            setPopupMessage("Nome completo é obrigatório");
+            setPopupType("error");
         } else {
-            setErro(null);
+            setPopupMessage("Cadastro realizado com sucesso!");
+            setPopupType("success");
             // Aqui você pode adicionar a lógica para enviar os dados para o backend
         }
+
+        setPopupVisible(true);
+    };
+
+    const handleClosePopup = () => {
+        setPopupVisible(false); 
     };
 
     const handleLoginClick = () => {
@@ -36,12 +51,19 @@ const CadastroForm = () => {
         setShowPassword(!showPassword);
     };
 
+    useEffect(() => {
+        AOS.init({
+            duration: 2000,
+            easing: 'ease-in-out'
+        });
+    }, []);
+    
     return (
         <>
             <div className="hidden lg:block">
                 <BannerLateral/>
             </div>
-            <div className="absolute right-0 top-0 bg-[#89398A] h-full w-full lg:w-1/3 flex flex-col overflow-y-hidden">
+            <div className="absolute right-0 top-0 bg-[#89398A] h-full w-full lg:w-1/3 flex flex-col " data-aos='zoom-in-left'>
                 <div className="flex flex-col items-center justify-center p-4">
                     <p className="text-3xl font-bold text-[#FFA31C] mb-4">Cadastrar</p>
                     <form onSubmit={handleSubmit} className="flex flex-col w-full">
@@ -123,8 +145,6 @@ const CadastroForm = () => {
                             />
                         </div>
 
-                        {erro && <p className="text-red-500">{erro}</p>}
-
                         <input
                             type="submit"
                             value="CADASTRAR"
@@ -140,6 +160,14 @@ const CadastroForm = () => {
                     </button>
                 </div>
             </div>
+            
+            {popupVisible && (
+                <Popup
+                    message={popupMessage}
+                    type={popupType}
+                    onClose={handleClosePopup}
+                />
+            )}
         </>
     );
 };
