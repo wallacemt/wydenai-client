@@ -5,37 +5,61 @@ import { cursoOptions } from "./cursoOptions.js";
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 import Popup from "../../popup"; 
-
+import apiService from "../../../services/apiService.js";
 const CadastroForm = () => {
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [curso, setCurso] = useState("");
-    const [senha, setSenha] = useState("");
-    const [repitaSenha, setRepitaSenha] = useState("");
+    const [password, setPassword] = useState("");
+    const [repitaPassword, setRepitaPassword] = useState("");
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupMessage, setPopupMessage] = useState("");
-    const [popupType, setPopupType] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [popupType, setPopupType] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (senha !== repitaSenha) {
-            setPopupMessage("As senhas não coincidem");
-            setPopupType("error");
-        } else if (!email.includes("@")) {
-            setPopupMessage("Email inválido");
-            setPopupType("error");
-        } else if (!nome.trim()) {
-            setPopupMessage("Nome completo é obrigatório");
-            setPopupType("error");
-        } else {
-            setPopupMessage("Cadastro realizado com sucesso!");
-            setPopupType("success");
-            // Aqui você pode adicionar a lógica para enviar os dados para o backend
-        }
+        setLoading(true);
 
+        if(password !== repitaPassword) {
+            setPopupMessage("As passwords não coicidem");
+            setPopupType("error");
+            setLoading(false);
+        }else if(!email.includes("@")){
+            setPopupMessage("Email Inválido")
+            setPopupType("error");
+            setLoading(false);
+        }else if(!nome.trim()){
+            setPopupMessage("Nome completo é obrigatório")
+            setPopupType("error");
+            setLoading(false);
+        }else {
+            const userData = {
+                nome,
+                email,
+                curso,
+                password
+            }
+            try {
+                const response = await apiService.cadastrarUsuario(userData);
+                if(response.data.message === "Usuario cadastrado com sucesso") {
+                    setPopupMessage(response.data.message);
+                    setPopupType("success");
+                    setLoading(false);
+                    setTimeout(() => {
+                        navigate("/");
+                    }, 3000);
+                }
+            }catch (error) {
+                setPopupMessage(`Error: ${error}`)
+                setPopupType("error");
+            }finally{
+                setLoading(false);
+            }
+        }
         setPopupVisible(true);
     };
 
@@ -114,14 +138,14 @@ const CadastroForm = () => {
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="senha" className="text-white">Senha</label>
+                            <label htmlFor="password" className="text-white">Senha</label>
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
-                                    id="senha"
-                                    value={senha}
-                                    onChange={(e) => setSenha(e.target.value)}
-                                    placeholder="Digite sua senha"
+                                    id="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Digite sua password"
                                     required
                                     className="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring focus:ring-blue-400"
                                 />
@@ -133,13 +157,13 @@ const CadastroForm = () => {
                         </div>
 
                         <div className="mb-4">
-                            <label htmlFor="repita-senha" className="text-white">Repita a senha</label>
+                            <label htmlFor="repita-password" className="text-white">Repita a Senha</label>
                             <input
                                 type={showPassword ? "text" : "password"}
-                                id="repita-senha"
-                                value={repitaSenha}
-                                onChange={(e) => setRepitaSenha(e.target.value)}
-                                placeholder="Repita sua senha"
+                                id="repita-password"
+                                value={repitaPassword}
+                                onChange={(e) => setRepitaPassword(e.target.value)}
+                                placeholder="Repita sua password"
                                 required
                                 className="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring focus:ring-blue-400"
                             />
@@ -147,8 +171,10 @@ const CadastroForm = () => {
 
                         <input
                             type="submit"
-                            value="CADASTRAR"
-                            className="bg-[#FFA31C] text-white rounded-2xl py-3 w-full mb-4 hover:bg-[#ffa41c8e] transition"
+                            value={loading? "Carregando...":"CADASTRAR"}
+                            className={`${
+                                loading ? "bg-gray-400" : "bg-[#FFA31C]"
+                            } text-white rounded-2xl py-3 w-full mb-4 hover:bg-[#ffa41c8e] transition flex items-center justify-center`}
                         />
                     </form>
                     <p className="text-center text-white">Já tem conta?</p>

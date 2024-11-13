@@ -4,13 +4,17 @@ import BannerLateral from "../../bannerLateral";
 import Aos from 'aos';
 import 'aos/dist/aos.css';
 import Popup from "../../popup"; 
+import apiService from "../../../services/apiService";
 
 const LoginForm = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const [popupVisible, setPopupVisible] = useState(false);
     const [popupMessage, setPopupMessage] = useState("");
-    const [popupType, setPopupType] = useState(""); // "success" ou "error"
+    const [popupType, setPopupType] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleCadastroClick = () => {
         navigate("/register");
@@ -20,21 +24,29 @@ const LoginForm = () => {
         setShowPassword(!showPassword);
     };
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        try{
+            const loginData = {email, password};
+            const response = await apiService.loginUsuario(loginData)
+            setPopupVisible(true)
+            setPopupMessage(response.message|| "Login realizado com sucesso!");
+            setPopupType("sucess");
 
-       
-        const isSuccess = true; 
-
-        if (isSuccess) {
-            setPopupMessage("Login realizado com sucesso!");
-            setPopupType("success");
-        } else {
-            setPopupMessage("Erro ao realizar o login.");
+            localStorage.setItem("chatToken", response.data.chatToken);
+            localStorage.setItem("userInfo", JSON.stringify({
+                nome: response.data.nome,
+                curso: response.data.curso
+            }));
+            setTimeout(() => navigate("/chat", 3000));
+        }catch(error){
+            setPopupMessage(`Error: ${error}`)
             setPopupType("error");
+            
         }
-
-        setPopupVisible(true);
+        setLoading(false)
+        setPopupVisible(true)
     };
 
     const handleClosePopup = () => {
@@ -71,6 +83,9 @@ const LoginForm = () => {
                                 placeholder="Seu email"
                                 required
                                 className="w-full p-4 pl-12 border border-gray-300 rounded-2xl focus:outline-none focus:ring focus:ring-blue-400"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="email"
                             />
                         </div>
 
@@ -81,6 +96,9 @@ const LoginForm = () => {
                                 placeholder="********"
                                 required
                                 className="w-full p-4 pl-12 border border-gray-300 rounded-2xl focus:outline-none focus:ring focus:ring-blue-400"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                autoComplete="current-password"
                             />
                             <i
                                 className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"} absolute right-4 top-1/2 transform -translate-y-1/2 text-2xl cursor-pointer`}
@@ -90,7 +108,7 @@ const LoginForm = () => {
 
                         <input
                             type="submit"
-                            value="ENTRAR"
+                            value={loading? "Entrando..." : "Entrar"}
                             className="bg-[#FFA31C] text-white rounded-2xl py-4 w-full mb-4 hover:bg-[#ffa41c8e] transition"
                         />
                     </form>
