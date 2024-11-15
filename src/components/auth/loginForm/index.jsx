@@ -30,21 +30,23 @@ const LoginForm = () => {
         try{
             const loginData = {email, password};
             const response = await apiService.loginUsuario(loginData)
-            setPopupVisible(true)
+            setPopupType("success");
             setPopupMessage(response.message|| "Login realizado com sucesso!");
-            setPopupType("sucess");
-
             localStorage.setItem("chatToken", response.data.chatToken);
             localStorage.setItem("userInfo", JSON.stringify({
+                id: response.data.id,
                 nome: response.data.nome,
                 curso: response.data.curso
-            }));
-            setTimeout(() => navigate("/chat", 3000));
+            })) 
         }catch(error){
             setPopupMessage(`Error: ${error}`)
             setPopupType("error");
-            
         }
+        setTimeout(() => {
+            if(localStorage.getItem("chatToken")){
+                navigate("/chat");
+            }
+        }, 3000);
         setLoading(false)
         setPopupVisible(true)
     };
