@@ -1,16 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import ChatMenu from "../../components/chat/chat_menu";
-import { useNavigate } from "react-router-dom";
+import ChatDisplay from "../../components/chat/chat_display";
+
 const ChatAI = () => {
-    // const navigate = useNavigate()
-    // const handleLoggout = () => {
-    //     localStorage.removeItem("chatToken");
-    //     localStorage.removeItem("userInfo");
-    //     navigate("/");
-    // };
+    const [currentChat, setCurrentChat] = useState(null);
+
+    const handleChatSelect = (chatId) => {
+        setCurrentChat(chatId);
+    };
+
     return (
-        <div>
-            <ChatMenu/>
+        <div className="flex h-screen bg-gray-900 text-white">
+            <ChatMenu onChatSelect={handleChatSelect} />
+            
+            <div className="flex-1 flex justify-center items-center ml-1/4">
+                <div className="w-full max-w-3xl h-[90%] bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                    <ChatDisplay chatId={currentChat} />
+                </div>
+            </div>
         </div>
     );
 };

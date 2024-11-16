@@ -41,7 +41,9 @@ const apiService = {
     },
     getMessages: async(chatId) => {
         try {
-            const response = await api.post(`/get_messages.php?chatId=${chatId}`);
+            const response = await api.get(`/get_messages.php?chat_id=${chatId}`, {
+                timeout: 10000
+            });
             return response.data;
         }catch(error) {
             console.error("Erro ao obter mensagens", error);
@@ -69,22 +71,32 @@ const apiService = {
             });
             return response.data;
         } catch (error) {
-            console.error("Erro ao atualizar o t tulo do chat", error);
+            console.error("Erro ao atualizar o título do chat", error);
             throw error;
         }
     },
     getChats: async (user_id) => {
         try {
             const response = await api.get(`/get_chats.php?user_id=${user_id}`, {
-                timeout: 5000
+                timeout: 10000
             });
             return response.data;
         }catch(error) {
             console.error("Erro ao obter os chats", error);
             throw error;
         }
+    },
+    deleteChat: async (chat_id) => {
+        try {
+            const response = await api.delete(`/delete_chat.php`, {
+                data: {chat_id}
+            })
+            return response.data;
+        } catch (error) {
+            console.error("Erro ao deletar o chat", error);
+            throw error;
+        }
     }
-
 }
 
 export default apiService;

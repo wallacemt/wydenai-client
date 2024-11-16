@@ -1,225 +1,266 @@
-import NewChatButton from "../../../../dist/icons/new_chat.svg";
-import SideBarButton from "../../../../dist/icons/sidebar_button.svg";
 import React, { useState, useEffect } from "react";
-import { FaComment, FaEllipsisV } from "react-icons/fa";
+import { slide as Menu } from "react-burger-menu"; // Importando o react-burger-menu
+import { FaFacebookMessenger, FaEllipsisV, FaEdit } from "react-icons/fa";
 import apiService from "../../../services/apiService";
+import NewChatButton from "../../../../dist/icons/new_chat.svg";
 
-const Navbar = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(true);
-    const [isOptionsVisible, setIsOptionsVisible] = useState(null);
-    const [hoveredChat, setHoveredChat] = useState(null);
+const Navbar = ({ onChatSelect }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOptionsVisible, setIsOptionsVisible] = useState(null);
+  const [hoveredChat, setHoveredChat] = useState(null);
 
-    const [chats, setChats] = useState([]);
-    const [userId, setUserId] = useState(null);
-    const [currentChat, setCurrentChat] = useState(null);
+  const [chats, setChats] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [currentChat, setCurrentChat] = useState(null);
 
-    const [editingChatId, setEditingChatId] = useState(null);
-    const [newChatTitle, setNewChatTitle] = useState(""); 
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [newChatTitle, setNewChatTitle] = useState("");
 
-    const toggleMenu = () => {
-        setIsMenuOpen(!isMenuOpen);
-    };
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-    const showOptions = (chatId) => {
-        setIsOptionsVisible(chatId);
-    };
+  const showOptions = (chatId) => {
+    setIsOptionsVisible(chatId);
+  };
 
-    const hideOptions = () => {
-        setIsOptionsVisible(null);
-    };
+  const hideOptions = () => {
+    setIsOptionsVisible(null);
+  };
 
-    // Atualizar o chat atualmente selecionado
-    const handleSelectChat = (chatId) => {
-        setCurrentChat(chatId);
-    };
+  const handleSelectChat = (chatId) => {
+    onChatSelect(chatId);
+    setCurrentChat(chatId);
+  };
 
-    const handleEditChat = (chatId, currentTitle) => {
-        if (editingChatId !== null) {
-            setEditingChatId(null); // Limpar a edição de um chat anterior
-        }
-        setEditingChatId(chatId);
-        setNewChatTitle(currentTitle); 
-    };
-    
-    const handleSaveChatTitle = async (chatId) => {
-        try {
-            const response = await apiService.updateChatTitle(chatId, newChatTitle);
-            console.log(response)
-            if (response.status === "success") {
-                setChats((prevChats) =>
-                    prevChats.map((chat) =>
-                        chat.id === chatId ? { ...chat, title: newChatTitle } : chat
-                    )
-                );
-                setEditingChatId(null); 
-            } else {
-                console.error("Erro ao salvar título:", response.message);
-            }
-        } catch (error) {
-            console.error("Erro ao salvar título do chat:", error);
-        }
-    };
-    
-    const handleCancelEdit = () => {
+  const handleEditChat = (chatId, currentTitle) => {
+    if (editingChatId !== null) {
+      setEditingChatId(null);
+    }
+    setEditingChatId(chatId);
+    setNewChatTitle(currentTitle);
+  };
+
+  const handleSaveChatTitle = async (chatId) => {
+    try {
+      const response = await apiService.updateChatTitle(chatId, newChatTitle);
+      if (response.status === "success") {
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat.id === chatId ? { ...chat, title: newChatTitle } : chat
+          )
+        );
         setEditingChatId(null);
-        setNewChatTitle("");
-    };
+      } else {
+        console.error("Erro ao salvar título:", response.message);
+      }
+    } catch (error) {
+      console.error("Erro ao salvar título do chat:", error);
+    }
+  };
 
-    const createNewChat = async () => {
+  const handleCancelEdit = () => {
+    setEditingChatId(null);
+    setNewChatTitle("");
+  };
+
+  const handleDeleteChat = async (chatId) => {
+    try {
+      const response = await apiService.deleteChat(chatId);
+      if (response.status === "success") {
+        setChats((prevChats) =>
+          prevChats.filter((chat) => chat.id !== chatId)
+        );
+      } else {
+        console.error("Erro ao deletar o chat:", response.message);
+      }
+    } catch (error) {
+      console.error("Erro ao deletar o chat:", error);
+    }
+  };
+
+  const createNewChat = async () => {
+    try {
+      const newChat = await apiService.chatStart(userId);
+      setChats((prevChats) => [...prevChats, newChat]);
+      setCurrentChat(newChat.id);
+    } catch (error) {
+      console.error("Erro ao criar um novo chat", error);
+    }
+  };
+
+  useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const storedUserId = userInfo ? userInfo.id : null;
+    if (storedUserId) {
+      setUserId(storedUserId);
+    }
+
+    if (userId) {
+      const fetchChats = async () => {
         try {
-            console.log("Criar novo chat");
-
-            const newChat = await apiService.chatStart(userId);
-
-            console.log("Novo chat criado:", newChat);
-
-            setChats((prevChats) => [...prevChats, newChat]);
-
-            setCurrentChat(newChat.id);
+          const response = await apiService.getChats(userId);
+          if (response.status === "success") {
+            setChats(response.chats);
+          } else {
+            console.error("Erro na resposta do servidor", response.message);
+          }
         } catch (error) {
-            console.error("Erro ao criar um novo chat", error);
+          console.error("Erro ao obter chats", error);
         }
-    };
+      };
+      fetchChats();
+    }
+  }, [userId]);
 
-    useEffect(() => {
-        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-
-        const storedUserId = userInfo ? userInfo.id : null;
-        if (storedUserId) {
-            setUserId(storedUserId);
-        }
-
-        if (userId) {
-            const fetchChats = async () => {
-                try {
-                    const response = await apiService.getChats(userId);
-                    if (response.status === "success") {
-                        setChats(response.chats);
-                    } else {
-                        console.error(
-                            "Erro na resposta do servidor",
-                            response.message
-                        );
-                    }
-                } catch (error) {
-                    console.error("Erro ao obter chats", error);
-                }
-            };
-            fetchChats();
-        }
-    }, [userId]);
-
-    return (
-        <div className="flex h-screen">
-            <div
-                className={`${
-                    isMenuOpen ? "w-80" : "w-16"
-                } bg-gray-800 text-white flex flex-col transition-all duration-300 ease-in-out`}
+  return (
+    <>
+      <div className="flex h-screen">
+        <div className="relative">
+          <div className="fixed top-1 left-2" style={{ zIndex: 90000 }}>
+            <input
+              type="checkbox"
+              id="checkbox"
+              className="hidden"
+              checked={isMenuOpen}
+              onChange={toggleMenu}
+            />
+            <label
+              htmlFor="checkbox"
+              className="toggle cursor-pointer flex flex-col justify-center items-center w-10 h-10 gap-1 transition-transform duration-500"
             >
-                <button className="p-3" onClick={toggleMenu}>
-                    <img src={SideBarButton} alt="Menu" className="w-8 h-8" />
-                </button>
+              <div
+                className={`bars w-full h-1 bg-purple-500 rounded-md transition-all duration-300 ${
+                  isMenuOpen ? "rotate-45 translate-y-3" : ""
+                }`}
+              ></div>
+              <div
+                className={`bars w-full h-1 bg-purple-500 rounded-md transition-all duration-300 ${
+                  isMenuOpen ? "opacity-0" : ""
+                }`}
+              ></div>
+              <div
+                className={`bars w-full h-1 bg-purple-500 rounded-md transition-all duration-300 ${
+                  isMenuOpen ? "-rotate-45 -translate-y-1" : ""
+                }`}
+              ></div>
+            </label>
+          </div>
+          <Menu
+            isOpen={isMenuOpen}
+            onStateChange={({ isOpen }) => setIsMenuOpen(isOpen)}
+            left
+            className="bg-gray-800 text-white h-screen"
+            width={370}
+            styles={{
+              bmOverlay: {
+                background: "rgba(0, 0, 0, 0.6)",
+              },
+              bmMenuWrap: {
+                position: "fixed",
+                top: 0,
+                left: 0,
+                zIndex: 9999,
+              },
+              bmMenu: {
+                background: "#373a47",
+                padding: "2.5em 1.5em 0",
+                fontSize: "1.15em",
+              },
+              bmItemList: {
+                color: "#b8b7ad",
+                listStyleType: "none",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                fontWeight: 500,
+                "&:hover": {
+                  backgroundColor: "#4f5158",
+                },
 
-                <div className="flex flex-col flex-grow">
-                    <button
-                        onClick={createNewChat}
-                        className="flex items-center py-3 px-4 hover:bg-gray-700 mb-2"
-                    >
-                        <img
-                            src={NewChatButton}
-                            alt="Novo Chat"
-                            className="mr-3 w-6 h-6"
+              },
+            }}
+          >
+            <button
+              onClick={createNewChat}
+              className="flex items-center py-3 px-4 hover:bg-gray-800 mb-5"
+            >
+              <span className="text-white font-bold text-lg flex items-center"><FaEdit className="mr-2 w-6 h-6" />Criar Novo Chat</span>
+            </button>
+
+            <div className="flex-grow overflow-y-auto h-5/6">
+              {chats.length === 0 ? (
+                <p className="text-center py-4">Nenhum chat encontrado.</p>
+              ) : (
+                chats.map((chat) => (
+                  <div
+                    key={chat.id}
+                    className="relative flex items-center py-3 px-4 hover:bg-gray-900 mb-2"
+                    onMouseEnter={() => setHoveredChat(chat.id)}
+                    onMouseLeave={() => setHoveredChat(null)}
+                  >
+                    {editingChatId === chat.id ? (
+                      <div className="flex items-center w-full">
+                        <input
+                          type="text"
+                          value={newChatTitle}
+                          onChange={(e) => setNewChatTitle(e.target.value)}
+                          className="w-full bg-gray-800 text-white p-2 rounded-md border border-gray-600"
                         />
-                        {isMenuOpen && <span>Criar Novo Chat</span>}
-                    </button>
+                        <button
+                          className="ml-2 bg-green-500 text-white px-3 py-1 rounded-md"
+                          onClick={() => handleSaveChatTitle(chat.id)}
+                        >
+                          Salvar
+                        </button>
+                        <button
+                          className="ml-2 bg-red-500 text-white px-3 py-1 rounded-md"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className="flex items-center w-full cursor-pointer border-b border-black-900 pb-2 mb-2 w-full cursor-pointer "
+                        onClick={() => handleSelectChat(chat.id)}
+                      >
+                        <FaFacebookMessenger className="mr-3 w-6 h-6" />
+                        <span>{chat.title}</span>
+                      </div>
+                    )}
 
-                    <div className="flex-grow overflow-y-auto">
-                        {chats.length === 0 ? (
-                            <p
-                                className="text-center py-4 transition-opacity duration-300 ease-in-out"
-                                style={isMenuOpen ? { opacity: 1 } : { opacity: 0 }}
+                    {hoveredChat === chat.id && (
+                      <div className="absolute right-1 z-10">
+                        <FaEllipsisV
+                          className="text-white text-lg cursor-pointer"
+                          onClick={() => showOptions(chat.id)}
+                        />
+                        {isOptionsVisible === chat.id && (
+                          <div className="absolute right-5 mt-2 w-32 bg-gray-950 text-white rounded-md shadow-lg">
+                            <button
+                              className="block py-1 px-4 w-full hover:bg-gray-800"
+                              onClick={() => handleEditChat(chat.id, chat.title)}
                             >
-                                Nenhum chat encontrado.
-                            </p>
-                        ) : (
-                            chats.map((chat) => (
-                                <div
-                                    key={chat.id}
-                                    className="relative flex items-center py-3 px-4 hover:bg-gray-900 mb-2 "
-                                    onMouseEnter={() => setHoveredChat(chat.id)}
-                                    onMouseLeave={() => setHoveredChat(null)}
-                                >
-                                    {editingChatId === chat.id ? (
-                                        <div className="flex items-center w-full">
-                                            <input
-                                                type="text"
-                                                value={newChatTitle}
-                                                onChange={(e) => setNewChatTitle(e.target.value)}
-                                                className="w-full bg-gray-800 text-white p-2 rounded-md border border-gray-600"
-                                            />
-                                            <button
-                                                className="ml-2 bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-700"
-                                                onClick={() => handleSaveChatTitle(chat.id)}
-                                            >
-                                                Salvar
-                                            </button>
-                                            <button
-                                                className="ml-2 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-700"
-                                                onClick={handleCancelEdit}
-                                            >
-                                                Cancelar
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div
-                                            className="flex items-center w-full cursor-pointer"
-                                            onClick={() => handleSelectChat(chat.id)}
-                                        >
-                                            <FaComment className="mr-3" />
-                                            {isMenuOpen && <span>{chat.title}</span>}
-                                        </div>
-                                    )}
-
-                                    {hoveredChat === chat.id && (
-                                        <div
-                                            className="absolute right-1 z-10"
-                                            onMouseEnter={() => showOptions(chat.id)}
-                                            onMouseLeave={() => {
-                                                setTimeout(() => {
-                                                    if (hoveredChat !== chat.id) {
-                                                        hideOptions();
-                                                    }
-                                                }, 1000);
-                                            }}
-                                        >
-                                            <FaEllipsisV className="text-white text-lg cursor-pointer" />
-                                            {isOptionsVisible === chat.id && (
-                                                <div className="absolute right-5 mt-2 w-32 bg-gray-950 text-white rounded-md shadow-lg">
-                                                    <button
-                                                        className="block py-2 px-4 hover:bg-gray-600"
-                                                        onClick={() => handleEditChat(chat.id, chat.title)}
-                                                    >
-                                                        Editar Nome
-                                                    </button>
-                                                    <button
-                                                        className="block py-2 px-4 hover:bg-gray-600"
-                                                        onClick={() => console.log(`Deletar chat ${chat.id}`)}
-                                                    >
-                                                        Deletar
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                                </div>
-                            ))
+                              Editar Titulo
+                            </button>
+                            <button
+                              className="block py-1 px-4 w-full hover:bg-red-500"
+                              onClick={() => handleDeleteChat(chat.id)}
+                            >
+                              Deletar
+                            </button>
+                          </div>
                         )}
-                    </div>
-                </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
+          </Menu>
         </div>
-    );
+      </div>
+    </>
+  );
 };
 
 export default Navbar;
