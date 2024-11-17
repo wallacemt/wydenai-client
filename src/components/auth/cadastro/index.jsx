@@ -87,7 +87,7 @@ const CadastroForm = () => {
             <div className="hidden lg:block">
                 <BannerLateral/>
             </div>
-            <div className="absolute right-0 top-0 bg-[#89398A] h-full w-full lg:w-1/3 flex flex-col " data-aos='zoom-in-left'>
+            <div className="absolute right-0 top-0 bg-[#89398A] h-full w-full lg:w-1/3 flex flex-col overflow-hidden" data-aos='zoom-in-left'>
                 <div className="flex flex-col items-center justify-center p-4">
                     <p className="text-3xl font-bold text-[#FFA31C] mb-4">Cadastrar</p>
                     <form onSubmit={handleSubmit} className="flex flex-col w-full">

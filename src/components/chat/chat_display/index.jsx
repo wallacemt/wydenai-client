@@ -33,11 +33,9 @@ const ChatDisplay = ({ chatId }) => {
 
     const handleSendMessage = async () => {
         if (newMessage.trim()) {
-            // Enviar a mensagem para a API (assumindo que a API tem um endpoint para isso)
             try {
                 const response = await apiService.sendMessage(chatId, newMessage);
                 if (response.status === "success") {
-                    // Adiciona a mensagem do usuário localmente
                     setMessages((prevMessages) => [
                         ...prevMessages,
                         { sender: "user", content: newMessage },
@@ -48,7 +46,6 @@ const ChatDisplay = ({ chatId }) => {
                 console.error("Erro ao enviar a mensagem:", error);
             }
 
-            // Simula a resposta do bot
             setTimeout(() => {
                 setMessages((prevMessages) => [
                     ...prevMessages,
@@ -69,7 +66,9 @@ const ChatDisplay = ({ chatId }) => {
 
             <div className="flex flex-col p-4 overflow-y-auto flex-grow space-y-4">
                 {messages.length === 0 ? (
-                    <p className="text-center text-gray-400">Nenhuma mensagem ainda.</p>
+                    <div className="flex items-center justify-center">
+                        <p className="text-center text-gray-400">Nenhuma mensagem ainda.</p>
+                    </div>
                 ) : (
                     messages.map((message, index) => (
                         <div key={index} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
@@ -84,18 +83,28 @@ const ChatDisplay = ({ chatId }) => {
                 )}
             </div>
             <div className="p-4 border-t border-gray-700 flex items-center space-x-2">
-                <input
-                    type="text"
-                    className="w-full p-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none"
+                <textarea
+                    className="w-full p-2 bg-gray-800 text-white rounded-lg border border-gray-600 focus:outline-none resize-none"
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Message WydenAI..."
+                    style={{ height: "auto",maxHeight: "250px", overflowY: "auto"  }}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            handleSendMessage();
+                            e.preventDefault();
+                        }
+                    }}
+                    onInput={(e) =>{
+                        (e.target.style.height = "auto"),
+                        (e.target.style.height = e.target.scrollHeight + "px")
+                    }}
                 />
                 <button
                     onClick={handleSendMessage}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none"
+                    className="bg-[#FF2A00] text-white px-4 py-2 rounded-full hover:bg-blue-700 focus:outline-none"
                 >
-                    Enviar
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2z" /></svg>
                 </button>
             </div>
         </div>

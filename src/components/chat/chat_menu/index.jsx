@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { slide as Menu } from "react-burger-menu"; // Importando o react-burger-menu
 import { FaFacebookMessenger, FaEllipsisV, FaEdit } from "react-icons/fa";
 import apiService from "../../../services/apiService";
-import NewChatButton from "../../../../dist/icons/new_chat.svg";
 
 const Navbar = ({ onChatSelect }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [isOptionsVisible, setIsOptionsVisible] = useState(null);
   const [hoveredChat, setHoveredChat] = useState(null);
 
@@ -29,6 +28,7 @@ const Navbar = ({ onChatSelect }) => {
   const handleSelectChat = (chatId) => {
     onChatSelect(chatId);
     setCurrentChat(chatId);
+    setIsMenuOpen(false);
   };
 
   const handleEditChat = (chatId, currentTitle) => {
@@ -115,7 +115,7 @@ const Navbar = ({ onChatSelect }) => {
     <>
       <div className="flex h-screen">
         <div className="relative">
-          <div className="fixed top-1 left-2" style={{ zIndex: 90000 }}>
+          <div className="fixed top-0 left-2" style={{ zIndex: 90000 }}>
             <input
               type="checkbox"
               id="checkbox"
@@ -151,9 +151,6 @@ const Navbar = ({ onChatSelect }) => {
             className="bg-gray-800 text-white h-screen"
             width={370}
             styles={{
-              bmOverlay: {
-                background: "rgba(0, 0, 0, 0.6)",
-              },
               bmMenuWrap: {
                 position: "fixed",
                 top: 0,

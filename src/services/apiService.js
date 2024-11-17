@@ -4,7 +4,7 @@ const apiService = {
     cadastrarUsuario: async (userData) => {
         try {
             const response  = await api.post(`/cadastro.php`, userData,{
-                timeout: 5000
+                timeout: 10000
             });
             return response;
         }catch(error) {
@@ -15,7 +15,7 @@ const apiService = {
     loginUsuario: async (loginData) => {
         try {
             const response = await api.post(`/login.php`, loginData, {
-                timeout: 5000
+                timeout: 10000
             });
     
             if (response.data && response.data.chatToken) {
@@ -28,10 +28,48 @@ const apiService = {
             throw error; 
         }
     },
+    getUserInfo: async (userId) => {
+      try{
+        const response	= await api.get(`/get_user_info.php?user_id=${userId}`, {
+            timeout: 10000
+        })
+        return response.data;
+      }catch(error) {
+        console.error("Erro ao obter informações do usuário", error);
+      } 
+    },
+    updateUserInfo: async (userId, email, nome) => {
+        try {
+            const response = await api.post(`/update_user_info.php`, {
+                user_id: userId,
+                email: email,
+                nome: nome
+            }, {
+                timeout: 10000
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Erro ao atualizar informações do usuário", error);
+            throw error;
+        }
+    },
+    deleteUser: async (user_id) => {
+        try {
+            const response = await api.delete(`/delete_user.php`, {
+                data: {user_id}
+            }, {
+                timeout: 10000
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Erro ao deletar usuário", error);
+            throw error;
+        }
+    },
     chatStart: async (userId) => {
         try {
             const response = await api.post("/chat_start.php", {user_id: userId}, {
-                timeout: 5000
+                timeout: 10000
             });
             return response.data;
         }catch(error) {
@@ -75,15 +113,19 @@ const apiService = {
             throw error;
         }
     },
-    getChats: async (user_id) => {
+    getChats: async (user_id, attempt = 1) => {
         try {
             const response = await api.get(`/get_chats.php?user_id=${user_id}`, {
-                timeout: 10000
+                timeout: 10000 * attempt
             });
             return response.data;
         }catch(error) {
-            console.error("Erro ao obter os chats", error);
-            throw error;
+            console.error(`Erro ao obter os chats (tentativa ${attempt})`, error);
+            if (attempt < 3) {
+                return apiService.getChats(user_id, attempt + 1);
+            } else {
+                throw error;
+            }
         }
     },
     deleteChat: async (chat_id) => {
