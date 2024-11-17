@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { slide as Menu } from "react-burger-menu"; // Importando o react-burger-menu
-import { FaFacebookMessenger, FaEllipsisV, FaEdit } from "react-icons/fa";
+import { FaFacebookMessenger, FaEllipsisV, FaEdit, FaTrashAlt } from "react-icons/fa";
 import apiService from "../../../services/apiService";
 
 const Navbar = ({ onChatSelect }) => {
@@ -190,7 +190,7 @@ const Navbar = ({ onChatSelect }) => {
                 chats.map((chat) => (
                   <div
                     key={chat.id}
-                    className="relative flex items-center py-3 px-4 hover:bg-gray-900 mb-2"
+                    className="relative flex items-center py-4 px-4 hover:bg-gray-900 mb-4"
                     onMouseEnter={() => setHoveredChat(chat.id)}
                     onMouseLeave={() => setHoveredChat(null)}
                   >
@@ -229,20 +229,28 @@ const Navbar = ({ onChatSelect }) => {
                       <div className="absolute right-1 z-10">
                         <FaEllipsisV
                           className="text-white text-lg cursor-pointer"
-                          onClick={() => showOptions(chat.id)}
+                          onClick={() => {
+                            if (isOptionsVisible === chat.id) {
+                              hideOptions();
+                            } else {
+                              showOptions(chat.id);
+                            }
+                          }}
                         />
                         {isOptionsVisible === chat.id && (
                           <div className="absolute right-5 mt-2 w-32 bg-gray-950 text-white rounded-md shadow-lg">
                             <button
-                              className="block py-1 px-4 w-full hover:bg-gray-800"
+                              className="flex items-center py-1 px-4 w-full hover:bg-gray-800 text-blue-400 text-m"
                               onClick={() => handleEditChat(chat.id, chat.title)}
                             >
+                              <FaEdit className="mr-2" />
                               Editar Titulo
                             </button>
                             <button
-                              className="block py-1 px-4 w-full hover:bg-red-500"
+                              className="flex items-center py-1 px-4 w-full hover:bg-red-200 text-red-600 text-m" 
                               onClick={() => handleDeleteChat(chat.id)}
                             >
+                              <FaTrashAlt className="mr-2" />
                               Deletar
                             </button>
                           </div>

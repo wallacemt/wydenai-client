@@ -66,26 +66,34 @@ const apiService = {
             throw error;
         }
     },
-    chatStart: async (userId) => {
+    chatStart: async (userId, attempt = 1) => {
         try {
-            const response = await api.post("/chat_start.php", {user_id: userId}, {
-                timeout: 10000
+            const response = await api.post("/chat_start.php", { user_id: userId }, {
+                timeout: 10000 * attempt
             });
             return response.data;
-        }catch(error) {
-            console.error("Erro ao iniciar o chat", error);
-            throw error;
+        } catch (error) {
+            console.error(`Erro ao iniciar o chat (tentativa ${attempt})`, error);
+            if (attempt < 3) {
+                return apiService.chatStart(userId, attempt + 1);
+            } else {
+                throw error;
+            }
         }
     },
-    getMessages: async(chatId) => {
+    getMessages: async (chatId, attempt = 1) => {
         try {
             const response = await api.get(`/get_messages.php?chat_id=${chatId}`, {
-                timeout: 10000
+                timeout: 10000 * attempt
             });
             return response.data;
         }catch(error) {
-            console.error("Erro ao obter mensagens", error);
-            throw error;
+            console.error(`Erro ao obter mensagens (tentativa ${attempt})`, error);
+            if (attempt < 3) {
+                return apiService.getMessages(chatId, attempt + 1);
+            } else {
+                throw error;
+            }
         }
     },
     sendMessage: async (chatId, sender, message) => {
