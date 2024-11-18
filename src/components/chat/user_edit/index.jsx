@@ -63,7 +63,10 @@ const UserEdit = () => {
     if (window.confirm("Você deseja mesmo sair?")) {
       localStorage.removeItem("chatToken");
       localStorage.removeItem("userInfo");
-      navigate("/");
+      setTimeout(() => {
+        navigate("/");
+        
+      }, 2000)
     }
   }
   return (

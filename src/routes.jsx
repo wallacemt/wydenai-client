@@ -6,8 +6,20 @@ const AppRoutes = () => {
     return (
         <BrowserRouter basename="/">
             <Routes>
-                <Route path="/" element={<LoginScreen />} />
-                <Route path="/register" element={<CadastroScreen />} />
+                <Route
+                path="/"
+                element={
+                    localStorage.getItem('chatToken')
+                    ? <Navigate to="/chat" />
+                    : <LoginScreen />
+                }/>
+                <Route
+                path="/register"
+                element={
+                    localStorage.getItem('chatToken')
+                    ? <Navigate to="/chat" />
+                    : <CadastroScreen />
+                }/>
                 <Route
                 path='/chat'
                 element={

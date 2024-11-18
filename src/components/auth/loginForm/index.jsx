@@ -46,7 +46,7 @@ const LoginForm = () => {
             if(localStorage.getItem("chatToken")){
                 navigate("/chat");
             }
-        }, 3000);
+        }, 3500);
         setLoading(false)
         setPopupVisible(true)
     };

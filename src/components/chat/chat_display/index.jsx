@@ -34,7 +34,8 @@ const ChatDisplay = ({ chatId }) => {
     const handleSendMessage = async () => {
         if (newMessage.trim()) {
             try {
-                const response = await apiService.sendMessage(chatId, newMessage);
+                const response = await apiService.sendMessage(chatId, "user", newMessage);
+
                 if (response.status === "success") {
                     setMessages((prevMessages) => [
                         ...prevMessages,
@@ -51,7 +52,7 @@ const ChatDisplay = ({ chatId }) => {
                     ...prevMessages,
                     { sender: "bot", content: "Resposta automatica da WydenAI" },
                 ]);
-            }, 1000);
+            }, 2000);
         }
     };
 
