@@ -66,11 +66,11 @@ Node.js (v16 ou superior)
 Yarn ou npm
 - 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/chat-ia-frontend.git
+git clone https://github.com/wallacemt/wydenai-client.git
 ```
 - 2. Acesse a pasta do projeto:
 ```bash
-cd chat-ia-frontend
+cd wydenai-client
 ```
 - 3 Instale as dependências:
 ```bash
