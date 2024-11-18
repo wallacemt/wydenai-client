@@ -37,19 +37,18 @@ const LoginForm = () => {
                 id: response.data.id,
                 nome: response.data.nome,
                 curso: response.data.curso
-            })) 
+            }))
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         }catch(error){
             setPopupMessage(`Error: ${error}`)
             setPopupType("error");
         }
-        setTimeout(() => {
-            if(localStorage.getItem("chatToken")){
-                navigate("/chat");
-            }
-        }, 3500);
         setLoading(false)
         setPopupVisible(true)
     };
+
 
     const handleClosePopup = () => {
         setPopupVisible(false); 

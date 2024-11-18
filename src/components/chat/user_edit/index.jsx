@@ -64,9 +64,8 @@ const UserEdit = () => {
       localStorage.removeItem("chatToken");
       localStorage.removeItem("userInfo");
       setTimeout(() => {
-        navigate("/");
-        
-      }, 2000)
+        window.location.reload();
+    }, 2000);
     }
   }
   return (

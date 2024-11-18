@@ -12,10 +12,10 @@ const apiService = {
             throw error;
         }
     },
-    loginUsuario: async (loginData) => {
+    loginUsuario: async (loginData, attempt = 1) => {
         try {
             const response = await api.post(`/login.php`, loginData, {
-                timeout: 10000
+                timeout: 10000 * attempt
             });
     
             if (response.data && response.data.chatToken) {
@@ -24,8 +24,12 @@ const apiService = {
                 throw new Error("Email ou senha incorretos");
             }
         } catch (error) {
-            console.error("Erro ao fazer login do usuário", error);
-            throw error; 
+            console.error(`Erro ao fazer login do usuário (tentativa ${attempt})`, error);
+            if (attempt < 3) {
+                return apiService.loginUsuario(loginData, attempt + 1);
+            } else {
+                throw error; 
+            }
         }
     },
     getUserInfo: async (userId) => {
@@ -102,6 +106,9 @@ const apiService = {
                 chat_id: chatId,
                 message: message, 
                 sender: sender
+            },
+            {
+                timeout: 10000
             });
             return response.data;
         }catch(error) {
