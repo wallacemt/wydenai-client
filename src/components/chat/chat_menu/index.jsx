@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { slide as Menu } from "react-burger-menu"; // Importando o react-burger-menu
 import { FaFacebookMessenger, FaEllipsisV, FaEdit, FaTrashAlt } from "react-icons/fa";
 import apiService from "../../../services/apiService";
-
+import LoadingSpinner from "../loading";
 const Navbar = ({ onChatSelect }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [isOptionsVisible, setIsOptionsVisible] = useState(null);
   const [hoveredChat, setHoveredChat] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [chats, setChats] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -78,12 +79,15 @@ const Navbar = ({ onChatSelect }) => {
   };
 
   const createNewChat = async () => {
+    setIsLoading(true);
     try {
       const newChat = await apiService.chatStart(userId);
       setChats((prevChats) => [...prevChats, newChat]);
       setCurrentChat(newChat.id);
     } catch (error) {
       console.error("Erro ao criar um novo chat", error);
+    } finally{
+      setIsLoading(false);
     }
   };
 
@@ -96,6 +100,7 @@ const Navbar = ({ onChatSelect }) => {
 
     if (userId) {
       const fetchChats = async () => {
+        setIsLoading(true);
         try {
           const response = await apiService.getChats(userId);
           if (response.status === "success") {
@@ -105,11 +110,14 @@ const Navbar = ({ onChatSelect }) => {
           }
         } catch (error) {
           console.error("Erro ao obter chats", error);
+        } finally {
+          setIsLoading(false);
         }
       };
       fetchChats();
     }
   }, [userId]);
+
 
   return (
     <>
@@ -184,7 +192,11 @@ const Navbar = ({ onChatSelect }) => {
             </button>
 
             <div className="flex-grow overflow-y-auto h-5/6">
-              {chats.length === 0 ? (
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <LoadingSpinner size={50} message="Carregando..."/>
+                </div>
+              ) : chats.length === 0 ? (
                 <p className="text-center py-4">Nenhum chat encontrado.</p>
               ) : (
                 chats.map((chat) => (
@@ -193,6 +205,7 @@ const Navbar = ({ onChatSelect }) => {
                     className="relative flex items-center py-4 px-4 hover:bg-gray-900 mb-4"
                     onMouseEnter={() => setHoveredChat(chat.id)}
                     onMouseLeave={() => setHoveredChat(null)}
+                    
                   >
                     {editingChatId === chat.id ? (
                       <div className="flex items-center w-full">
@@ -226,7 +239,7 @@ const Navbar = ({ onChatSelect }) => {
                     )}
 
                     {hoveredChat === chat.id && (
-                      <div className="absolute right-1 z-10">
+                      <div className="absolute right-1" style={{ zIndex: 9999 }}>
                         <FaEllipsisV
                           className="text-white text-lg cursor-pointer"
                           onClick={() => {
@@ -238,7 +251,7 @@ const Navbar = ({ onChatSelect }) => {
                           }}
                         />
                         {isOptionsVisible === chat.id && (
-                          <div className="absolute right-5 mt-2 w-32 bg-gray-950 text-white rounded-md shadow-lg">
+                          <div className="absolute right-5 mt-2 w-32 bg-gray-950 text-white rounded-md shadow-lg z-10000">
                             <button
                               className="flex items-center py-1 px-4 w-full hover:bg-gray-800 text-blue-400 text-m"
                               onClick={() => handleEditChat(chat.id, chat.title)}

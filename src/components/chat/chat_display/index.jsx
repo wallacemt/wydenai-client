@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
 import wydenLogo from "../../../../public/logo-principal.png"; // Importe a logo
 import apiService from "../../../services/apiService"; 
-
+import LoadingSpinner from "../loading";
 const ChatDisplay = ({ chatId }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSendMessageDisabled, setSendMessageDisabled] = useState(false);
 
     useEffect(() => {
         const fetchMessages = async () => {
+            setIsLoading(true);
             try {
                 const response = await apiService.getMessages(chatId); 
                 console.log(response);
@@ -23,6 +26,8 @@ const ChatDisplay = ({ chatId }) => {
                 }
             } catch (error) {
                 console.error("Erro ao buscar mensagens:", error);
+            }finally{
+                setIsLoading(false);
             }
         };
 
@@ -33,6 +38,7 @@ const ChatDisplay = ({ chatId }) => {
 
     const handleSendMessage = async () => {
         if (newMessage.trim()) {
+            setSendMessageDisabled(true);
             try {
                 const response = await apiService.sendMessage(chatId, "user", newMessage);
 
@@ -45,6 +51,8 @@ const ChatDisplay = ({ chatId }) => {
                 }
             } catch (error) {
                 console.error("Erro ao enviar a mensagem:", error);
+            } finally{
+                setSendMessageDisabled(false);
             }
 
             setTimeout(() => {
@@ -55,7 +63,6 @@ const ChatDisplay = ({ chatId }) => {
             }, 2000);
         }
     };
-
     return (
         <div className="flex flex-col w-full max-w-3xl mx-auto bg-gray-900 text-white h-full rounded-lg">
             <div className="flex items-center justify-center p-4 border-b border-gray-700">
@@ -65,8 +72,12 @@ const ChatDisplay = ({ chatId }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col p-4 overflow-y-auto flex-grow space-y-4">
-                {messages.length === 0 ? (
+            <div className="flex flex-col p-4 overflow-y-auto flex-grow space-y-4 overflow-x-hidden">
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <LoadingSpinner size={50} message="Carregando..."/>
+                    </div>
+                ) : messages.length === 0 ? (
                     <div className="flex items-center justify-center">
                         <p className="text-center text-gray-400">Nenhuma mensagem ainda.</p>
                     </div>
@@ -74,7 +85,7 @@ const ChatDisplay = ({ chatId }) => {
                     messages.map((message, index) => (
                         <div key={index} className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}>
                             <div
-                                className={`max-w-xs p-6 text-white ${message.sender === "user" ? "bg-blue-900 rounded-lg" : "bg-gray-800 rounded-lg"}`}
+                                className={`max-w-xs p-6 text-white ${message.sender === "user" ? "bg-blue-900 rounded-lg"  : "bg-gray-800 rounded-lg"}`}
                                 style={{ borderRadius: message.sender === "user" ? "10px 0px 10px 10px" : "0px 10px 10px 10px" }}
                             >
                                 <p>{message.content}</p>
@@ -100,10 +111,12 @@ const ChatDisplay = ({ chatId }) => {
                         (e.target.style.height = "auto"),
                         (e.target.style.height = e.target.scrollHeight + "px")
                     }}
+                    disabled={isSendMessageDisabled}
                 />
                 <button
                     onClick={handleSendMessage}
                     className="bg-[#FF2A00] text-white px-4 py-2 rounded-full hover:bg-blue-700 focus:outline-none"
+                    disabled={isSendMessageDisabled}
                 >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2z" /></svg>
                 </button>
@@ -113,3 +126,4 @@ const ChatDisplay = ({ chatId }) => {
 };
 
 export default ChatDisplay;
+
